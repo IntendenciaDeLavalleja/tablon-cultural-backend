@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Notificaciones de postulaciones</h1>
+<p class="mb-6">Pendientes: {{ pending }}. Fallidas con reintento automático: {{ failed }}.</p>
+<div class="overflow-x-auto bg-white rounded-xl p-6">
+<table class="w-full text-left"><thead><tr><th>Destinatario</th><th>Asunto</th><th>Estado</th><th>Intentos</th><th>Acción</th></tr></thead><tbody>
+{% for item in entries.items %}
+<tr class="border-b"><td class="p-3">{{ item.recipient }}</td><td>{{ item.subject }}</td><td>{{ 'Enviado' if item.sent_at else ('Error: ' ~ item.last_error if item.last_error else 'Pendiente') }}</td><td>{{ item.attempts }}</td><td>
+{% if not item.sent_at %}<form method="post" action="{{ url_for('admin.retry_notification', id=item.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="p-2 text-blue-700">Reintentar ahora</button></form>{% endif %}
+</td></tr>
+{% else %}<tr><td colspan="5">No hay notificaciones.</td></tr>{% endfor %}
+</tbody></table>
+{% if entries.has_prev %}<a href="{{ url_for('admin.email_queue', page=entries.prev_num) }}">Anterior</a>{% endif %}
+{% if entries.has_next %}<a href="{{ url_for('admin.email_queue', page=entries.next_num) }}">Siguiente</a>{% endif %}
+</div>
+{% endblock %}

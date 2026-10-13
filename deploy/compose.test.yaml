@@ -1,0 +1,41 @@
+# Isolated local integration environment. Never use this override in production.
+services:
+  backend:
+    ports: ["127.0.0.1:5000:8000"]
+    environment:
+      FORCE_HTTPS: "false"
+      TRUSTED_PROXY_COUNT: "1"
+      MAIL_SERVER: mailpit
+      MAIL_PORT: "1025"
+      MAIL_USE_TLS: "false"
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+    depends_on:
+      minio:
+        condition: service_healthy
+  mail-worker:
+    environment:
+      MAIL_SERVER: mailpit
+      MAIL_PORT: "1025"
+      MAIL_USE_TLS: "false"
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ["127.0.0.1:8028:8025"]
+  minio:
+    # Only a disposable QA fixture; production uses the configured existing service.
+    build: ./deploy/minio
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: tablon-storage
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:?Set the isolated QA storage password}
+    volumes: ["images:/data"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  images:

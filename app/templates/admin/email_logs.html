@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Correos Enviados</h1>
+        <p class="text-slate-500 font-medium">Registro histórico de comunicaciones internas.</p>
+    </div>
+    <a href="{{ url_for('admin.send_email') }}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg hover:-translate-y-0.5">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Nuevo Correo
+    </a>
+</div>
+
+<div class="overflow-hidden bg-white border border-slate-100 rounded-[2.5rem] shadow-sm">
+    <div class="overflow-x-auto text-left">
+        <table class="w-full text-sm text-left text-slate-500">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-50/50 border-b border-slate-100">
+                <tr>
+                    <th class="px-8 py-5 font-black tracking-widest">Fecha / Hora</th>
+                    <th class="px-8 py-5 font-black tracking-widest">Destinatario</th>
+                    <th class="px-8 py-5 font-black tracking-widest">Asunto</th>
+                    <th class="px-8 py-5 font-black tracking-widest">Remitente</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for log in logs.items %}
+                <tr class="hover:bg-slate-50/30 transition-colors">
+                    <td class="px-8 py-5 font-bold text-slate-900 whitespace-nowrap">{{ log.sent_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td class="px-8 py-5">
+                        <p class="font-bold text-slate-800">{{ log.recipient_name }}</p>
+                        <p class="text-[10px] uppercase font-black tracking-tighter text-slate-400">{{ log.recipient_email }}</p>
+                    </td>
+                    <td class="px-8 py-5 font-medium text-slate-600 truncate max-w-xs" title="{{ log.subject }}">
+                        {{ log.subject }}
+                    </td>
+                    <td class="px-8 py-5 text-xs font-bold">{{ log.sent_by.email }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-8 py-20 text-center text-slate-400 font-bold">No se han registrado envíos de correos internos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if logs.pages > 1 %}
+    <div class="px-8 py-6 bg-slate-50/30 border-t border-slate-50 flex justify-between items-center text-xs font-black uppercase tracking-widest">
+        <span class="text-slate-400">Página {{ logs.page }} de {{ logs.pages }}</span>
+        <div class="flex gap-2">
+            {% if logs.has_prev %}
+                <a href="{{ url_for('admin.email_logs', page=logs.prev_num) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Anterior</a>
+            {% endif %}
+            {% if logs.has_next %}
+                <a href="{{ url_for('admin.email_logs', page=logs.next_num) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Siguiente</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

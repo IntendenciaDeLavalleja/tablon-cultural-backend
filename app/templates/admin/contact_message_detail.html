@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-10">
+    <a href="{{ url_for('admin.contact_messages') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-blue-600 transition-colors mb-4 group">
+        <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Volver al listado
+    </a>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Mensaje de Contacto</h1>
+            <p class="text-slate-500 font-medium">{{ message.created_at|date_es }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center">
+                <span class="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Detalle del Mensaje
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Nombre</dt>
+                    <dd class="text-slate-900 font-bold">{{ message.full_name }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Correo</dt>
+                    <dd class="text-slate-900 font-bold">{{ message.email }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Asunto</dt>
+                    <dd class="text-slate-900 font-bold">{{ message.subject or 'Sin asunto' }}</dd>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Mensaje</dt>
+                <div class="p-6 bg-white border-2 border-slate-50 rounded-3xl text-slate-700 leading-relaxed font-medium">
+                    {{ message.message }}
+                </div>
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-slate-50 flex flex-wrap gap-4">
+                <div class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-400 flex items-center">
+                    ORIGEN: {{ message.ip_address }}
+                </div>
+                <div class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-400 truncate max-w-xs" title="{{ message.user_agent }}">
+                    UA: {{ message.user_agent }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-1">
+        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-6 tracking-tight">Responder por Email</h3>
+            <form method="POST" action="{{ url_for('admin.reply_contact_message', id=message.id) }}" class="space-y-6">
+                {{ reply_form.hidden_tag() }}
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Asunto</label>
+                    {{ reply_form.subject(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold appearance-none transition-all") }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Mensaje</label>
+                    {{ reply_form.message(class="block p-4 w-full text-sm text-slate-900 bg-slate-50 rounded-2xl border-0 focus:ring-2 focus:ring-blue-500 font-medium transition-all placeholder:text-slate-300", rows="6", placeholder="Escribí la respuesta...") }}
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-4 px-6 border border-transparent text-sm font-black rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 shadow-lg shadow-indigo-200 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                    Enviar Respuesta
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

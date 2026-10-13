@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #dfdfdf; border-radius: 5px; }
+        .header { background-color: #d9534f; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { padding: 20px; line-height: 1.6; }
+        .code { font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; margin: 20px 0; color: #d9534f; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        .warning { color: #8a6d3b; background-color: #fcf8e3; border: 1px solid #faebcc; padding: 10px; border-radius: 4px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h3>Verificación de Seguridad</h3>
+        </div>
+        <div class="content">
+            <p>Se ha solicitado un acceso a la administración del Tablón Cultural.</p>
+            <p>Tu código de verificación de doble factor (2FA) es:</p>
+            
+            <div class="code">{{ code }}</div>
+            
+            <p>Este código expira en <strong>10 minutos</strong>.</p>
+            
+            <div class="warning">
+                <strong>Advertencia de Seguridad:</strong><br>
+                Si no has intentado iniciar sesión, por favor ignora este correo y contacta al administrador del sistema inmediatamente, ya que tu contraseña podría estar comprometida.
+            </div>
+        </div>
+        <div class="footer">
+            <p>Tablón Cultural Admin Panel</p>
+        </div>
+    </div>
+</body>
+</html>

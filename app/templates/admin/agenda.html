@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Formulario para agregar (Izquierda) -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm sticky top-24">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">Agenda</h1>
+            <p class="text-slate-500 font-medium mb-8 text-sm">Gestiona los contactos culturales de la agenda.</p>
+            
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+            {% for field in form %}{% for error in field.errors %}<p role="alert" class="text-red-600">{{ field.label.text }}: {{ error }}</p>{% endfor %}{% endfor %}
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Nombre del Contacto</label>
+                    {{ form.name(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="Ej: Colectivo Cultural" ) }}
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Correo Electrónico</label>
+                    {{ form.email(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="correo@lavalleja.gub.uy") }}
+                </div>
+                <button type="submit" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                    Guardar en Agenda
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listado de contactos (Derecha) -->
+    <div class="lg:col-span-2">
+        <div class="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden text-sm">
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                <h2 class="font-bold text-slate-900 text-xl">Contactos Guardados</h2>
+                <span class="bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-xs font-black">{{ contacts|length }}</span>
+            </div>
+            <div class="overflow-x-auto text-left">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/50 text-slate-400 uppercase text-[10px] font-black tracking-widest">
+                        <tr>
+                            <th class="px-8 py-5">Nombre / Dependencia</th>
+                            <th class="px-8 py-5">Email</th>
+                            <th class="px-8 py-5 text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        {% for contact in contacts %}
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-8 py-5 font-bold text-slate-900">{{ contact.name }}</td>
+                            <td class="px-8 py-5 text-slate-500 font-medium">{{ contact.email }}</td>
+                            <td class="px-8 py-5 text-right">
+                                <a href="{{ url_for('admin.send_email', contact_id=contact.id) }}" class="inline-flex items-center text-blue-600 font-bold hover:underline">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    Redactar
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="px-8 py-10 text-center text-slate-400 font-medium">No hay contactos registrados aún.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

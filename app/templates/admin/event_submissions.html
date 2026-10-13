@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Postulaciones de Eventos</h1>
+        <p class="text-slate-500 font-medium">Listado de eventos enviados desde el sitio.</p>
+    </div>
+
+    <form class="w-full md:w-96" method="GET" action="{{ url_for('admin.event_submissions_list') }}">
+        <div class="relative group">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none transition-colors group-focus-within:text-blue-600">
+                <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input type="text" name="q" id="simple-search" class="bg-white border-slate-200 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full ps-11 p-3.5 shadow-sm transition-all duration-200" placeholder="Buscar por código, email o evento..." value="{{ request.args.get('q', '') }}">
+        </div>
+    </form>
+</div>
+
+<div class="mb-8 p-1 bg-slate-100 rounded-2xl inline-flex flex-wrap w-fit">
+    <a href="{{ url_for('admin.event_submissions_list') }}" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 {{ 'bg-white text-blue-600 shadow-sm' if not current_status else 'text-slate-500 hover:text-slate-700' }}">Todas</a>
+
+    {% for status in ['NEW', 'APPROVED', 'REJECTED', 'ARCHIVED'] %}
+    <a href="{{ url_for('admin.event_submissions_list', status=status) }}" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 {{ 'bg-white text-blue-600 shadow-sm' if current_status == status else 'text-slate-500 hover:text-slate-700' }}">
+        {% if status == 'NEW' %}Nuevas{% elif status == 'APPROVED' %}Aprobadas{% elif status == 'REJECTED' %}Rechazadas{% elif status == 'ARCHIVED' %}Archivadas{% else %}{{ status }}{% endif %}
+    </a>
+    {% endfor %}
+</div>
+
+<div class="overflow-hidden bg-white border border-slate-100 rounded-3xl shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-500">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-50/50 border-b border-slate-100">
+                <tr>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Código</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Evento</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Localidad</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider text-center">Estado</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Fecha</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for submission in submissions.items %}
+                <tr class="hover:bg-slate-50/80 transition-colors duration-150 group">
+                    <td class="px-6 py-4">
+                        <span class="font-bold text-slate-900">{{ submission.submission_code }}</span>
+                    </td>
+                    <td class="px-6 py-4 font-medium text-slate-600">
+                        <div class="font-bold text-slate-900">{{ submission.event_name }}</div>
+                        {% if submission.status.name in ['REJECTED', 'ARCHIVED'] and submission.admin_note %}
+                        <div class="mt-1 text-[11px] font-bold text-rose-400/80 italic truncate max-w-[200px]" title="{{ submission.admin_note }}">
+                            "{{ submission.admin_note }}"
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-slate-600">{{ submission.locality }}</td>
+                    <td class="px-6 py-4 text-center">
+                        {% set status_class = {
+                            'NEW': 'bg-slate-100 text-slate-700',
+                            'APPROVED': 'bg-emerald-50 text-emerald-700',
+                            'REJECTED': 'bg-rose-50 text-rose-700',
+                            'ARCHIVED': 'bg-slate-100 text-slate-400'
+                        }.get(submission.status.name, 'bg-gray-50') %}
+                        <span class="{{ status_class }} inline-block text-[10px] font-black uppercase tracking-normal px-4 py-2.5 rounded-full border border-current opacity-90 whitespace-nowrap">
+                            {{ submission.status.label }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-slate-900 font-semibold">{{ submission.created_at|date_es }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{{ url_for('admin.event_submission_detail', id=submission.id) }}" class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition-all duration-200">
+                            Gestionar
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-20 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                            </div>
+                            <p class="text-slate-400 font-bold">No se encontraron postulaciones.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center px-6 py-6 border-t border-slate-50 bg-slate-50/30">
+        <span class="text-sm font-bold text-slate-400 mb-4 sm:mb-0">
+            Mostrando página <span class="text-slate-900">{{ submissions.page }}</span> de <span class="text-slate-900">{{ submissions.pages }}</span>
+        </span>
+        <div class="flex space-x-2">
+            {% if submissions.has_prev %}
+            <a href="{{ url_for('admin.event_submissions_list', page=submissions.prev_num, status=current_status, q=request.args.get('q', '')) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm">
+                &larr; Anterior
+            </a>
+            {% endif %}
+
+            {% if submissions.has_next %}
+            <a href="{{ url_for('admin.event_submissions_list', page=submissions.next_num, status=current_status, q=request.args.get('q', '')) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm">
+                Siguiente &rarr;
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

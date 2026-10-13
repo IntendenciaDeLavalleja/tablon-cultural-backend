@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Nueva Postulación de Evento</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50;">Nueva Postulación de Evento</h2>
+        
+        <p>Se ha recibido una nueva postulación de evento en el Tablón Cultural.</p>
+        
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+            <p><strong>Código de postulación:</strong> {{ submission.submission_code }}</p>
+            <p><strong>Nombre del evento:</strong> {{ submission.event_name }}</p>
+            <p><strong>Postulante:</strong> {{ submission.full_name }}</p>
+            <p><strong>Email de contacto:</strong> {{ submission.email }}</p>
+            <p><strong>Fecha del evento:</strong> {{ submission.event_date.strftime('%d/%m/%Y') if submission.event_date else 'No especificada' }}</p>
+            <p><strong>Localidad:</strong> {{ submission.locality }}</p>
+        </div>
+        
+        <p>Por favor, ingresa al panel de administración para revisar y aprobar o rechazar esta postulación.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #777; text-align: center;">
+            Este es un mensaje automático del sistema Tablón Cultural.
+        </p>
+    </div>
+</body>
+</html>

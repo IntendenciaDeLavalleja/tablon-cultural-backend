@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="relative flex flex-col items-center justify-center min-vh-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="absolute inset-0 z-0 overflow-hidden">
+        <div class="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] bg-emerald-100 rounded-full blur-3xl opacity-50"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl shadow-emerald-100 mb-6 group">
+                <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Verificación 2FA</h1>
+            <p class="text-slate-500 font-medium px-4">Introduce el código de 6 dígitos que enviamos a tu bandeja de correo.</p>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-xl border border-white rounded-3xl shadow-2xl shadow-slate-200/60 p-8 sm:p-10">
+            <form class="space-y-6" action="{{ url_for('admin.verify_2fa') }}" method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div>
+                    <label for="code" class="block text-sm font-semibold text-slate-700 mb-4 text-center text-center">Código de Seguridad</label>
+                    <div class="relative">
+                        {{ form.code(class="block w-full text-center tracking-[0.5em] text-3xl font-bold py-4 bg-slate-50 border-0 focus:ring-2 focus:ring-emerald-500 rounded-2xl text-slate-900 placeholder:text-slate-300 transition-all duration-200", placeholder="000000", maxlength="6", autofocus=true) }}
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-2xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-xl shadow-emerald-200 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.9L10 9.503l7.834-4.603A2 2 0 0016 4H4a2 2 0 00-1.834.9zM2 6.1s0-.012.002-.028l7.998 4.706 7.998-4.706c.002.016.002.027.002.027V14a2 2 0 01-2 2H4a2 2 0 01-2-2V6.1z" clip-rule="evenodd" /></svg>
+                        </span>
+                        Verificar Identidad
+                    </button>
+                </div>
+
+                {% if form.errors %}
+                <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl mt-4">
+                    <div class="flex">
+                        <div class="ml-3">
+                            {% for error in form.code.errors %}
+                                <p class="text-sm font-bold text-rose-800">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+            
+            <div class="mt-8 text-center">
+                <p class="text-slate-400 text-sm font-medium">¿No recibiste el código? <a href="#" class="text-blue-600 hover:text-blue-700 hover:underline">Reenviar</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

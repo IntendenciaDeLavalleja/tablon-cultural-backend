@@ -1,0 +1,225 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-10">
+    <a href="{{ url_for('admin.event_submissions_list') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-blue-600 transition-colors mb-4 group">
+        <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Volver al listado
+    </a>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Detalle de Postulación</h1>
+            <div class="flex items-center mt-2 space-x-3">
+                <span class="text-slate-400 font-bold tracking-widest uppercase text-xs">Código:</span>
+                <span class="bg-slate-900 text-white px-3 py-1 rounded-lg text-sm font-black">{{ submission.submission_code }}</span>
+            </div>
+        </div>
+
+        {% set status_class = {
+            'NEW': 'bg-slate-100 text-slate-700',
+            'APPROVED': 'bg-emerald-50 text-emerald-700',
+            'REJECTED': 'bg-rose-50 text-rose-700',
+            'ARCHIVED': 'bg-slate-100 text-slate-400'
+        }.get(submission.status.name, 'bg-gray-50') %}
+        <div class="{{ status_class }} inline-block px-6 py-2.5 rounded-2xl border border-current font-black uppercase tracking-normal text-xs whitespace-nowrap">
+            {{ submission.status.label }}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center">
+                <span class="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Información del Evento
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Evento</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.event_name }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Localidad</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.locality }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Dirección</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.address or 'Sin dirección' }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Fecha del Evento</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.event_date.strftime('%d/%m/%Y') if submission.event_date else 'No especificada' }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Contacto</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.full_name }}</dd>
+                    <dd class="text-xs text-slate-400 font-semibold">{{ submission.email }}</dd>
+                </div>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Teléfono</dt>
+                    <dd class="text-slate-900 font-bold">{{ submission.phone or 'No especificado' }}</dd>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Descripción</dt>
+                <div class="p-6 bg-white border-2 border-slate-50 rounded-3xl text-slate-700 leading-relaxed font-medium">
+                    {{ submission.description }}
+                </div>
+            </div>
+
+            {% if submission.links %}
+            <div class="mb-8">
+                <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Links</dt>
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 text-sm text-slate-600">
+                    {{ submission.links }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if submission.status.name in ['REJECTED', 'ARCHIVED'] %}
+            <div>
+                <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Motivo del Gestor</dt>
+                <div class="p-6 rounded-3xl border text-sm font-medium leading-relaxed {{ 'bg-rose-50 border-rose-100 text-rose-700' if submission.status.name == 'REJECTED' else 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                    {{ submission.admin_note or 'Sin comentario registrado.' }}
+                </div>
+            </div>
+            {% elif image_url %}
+            <div>
+                <dt class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Imagen</dt>
+                <a href="{{ image_url }}" target="_blank" class="block overflow-hidden rounded-2xl border border-slate-100">
+                    <img src="{{ image_url }}" alt="Imagen del evento" class="w-full object-cover max-h-[360px]">
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="mt-10 pt-6 border-t border-slate-50 flex flex-wrap gap-4">
+                <div class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-400 flex items-center">
+                    ORIGEN: {{ submission.ip_address }}
+                </div>
+                <div class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-400 truncate max-w-xs" title="{{ submission.user_agent }}">
+                    UA: {{ submission.user_agent }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-1 space-y-8">
+        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-6 tracking-tight">Acción de Postulación</h3>
+
+            {% if submission.published_event_id %}
+            <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-emerald-700 text-center mb-4">
+                <p class="text-sm font-bold">{{ 'Ya aprobado y publicado' if submission.published_event.status.name == 'PUBLISHED' else 'Evento archivado' }}</p>
+                <a href="{{ url_for('admin.edit_event', id=submission.published_event_id) }}" class="text-xs font-black underline mt-1 block uppercase tracking-wider">Ver/Editar Evento</a>
+            </div>
+            {% elif submission.status.name in ['NEW', 'APPROVED'] %}
+            <a href="{{ url_for('admin.create_event', submission_id=submission.id) }}" class="w-full flex justify-center py-4 px-6 mb-4 border border-transparent text-sm font-black rounded-2xl text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                Convertir en Evento
+            </a>
+            {% else %}
+            <div class="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-rose-700 text-center mb-4">
+                <p class="text-sm font-black uppercase tracking-widest">Postulación {{ submission.status.label|lower }}</p>
+                <p class="text-[11px] font-bold mt-1 opacity-70">No puede ser convertida en evento.</p>
+            </div>
+            {% endif %}
+
+            {% if submission.status.name not in ['REJECTED', 'ARCHIVED'] %}
+            <div class="relative py-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                <div class="relative flex justify-center text-xs font-black uppercase tracking-widest text-slate-300 bg-white px-4">Actualizar Estado</div>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin.update_event_submission_status', id=submission.id) }}" class="space-y-6 mt-4">
+                {{ status_form.hidden_tag() }}
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Nuevo Estado</label>
+                    {{ status_form.status(class="bg-slate-50 border-0 text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full px-5 py-4 min-h-[58px] font-bold appearance-none transition-all") }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Nota interna</label>
+                    {{ status_form.note(class="block p-5 w-full text-base text-slate-900 bg-slate-50 rounded-2xl border-0 focus:ring-2 focus:ring-blue-500 font-medium leading-relaxed min-h-[180px] transition-all placeholder:text-slate-300", rows="7", placeholder="Observaciones internas...") }}
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-4 px-6 border border-transparent text-sm font-black rounded-2xl text-white bg-slate-900 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 shadow-lg shadow-slate-200 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                    Aplicar Cambios
+                </button>
+
+                <div class="relative py-2">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                    <div class="relative flex justify-center text-[10px] font-black uppercase tracking-widest text-slate-300 bg-white px-4">Acciones rápidas</div>
+                </div>
+
+                <p class="text-xs text-slate-500 font-semibold">Para rechazar o archivar, deja una nota interna y usa uno de estos botones.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                        type="submit"
+                        name="quick_status"
+                        value="REJECTED"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-xs font-black rounded-2xl text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 shadow-md transition-all duration-200"
+                    >
+                        Rechazar con comentario
+                    </button>
+                    <button
+                        type="submit"
+                        name="quick_status"
+                        value="ARCHIVED"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-xs font-black rounded-2xl text-white bg-slate-600 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-600 shadow-md transition-all duration-200"
+                    >
+                        Archivar con comentario
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="p-8 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h4 class="text-sm font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Postulación cerrada</h4>
+                <p class="text-xs font-bold text-slate-400/60 leading-relaxed">No se pueden realizar cambios de estado en una postulación ya finalizada.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-6 tracking-tight">Responder por Email</h3>
+            {% if submission.status.name not in ['REJECTED', 'ARCHIVED'] %}
+            <form method="POST" action="{{ url_for('admin.reply_event_submission', id=submission.id) }}" class="space-y-6">
+                {{ reply_form.hidden_tag() }}
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Asunto</label>
+                    {{ reply_form.subject(class="bg-slate-50 border-0 text-slate-900 text-base rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full px-5 py-4 min-h-[58px] font-bold appearance-none transition-all") }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Mensaje</label>
+                    {{ reply_form.message(class="block p-5 w-full text-base text-slate-900 bg-slate-50 rounded-2xl border-0 focus:ring-2 focus:ring-blue-500 font-medium leading-relaxed min-h-[220px] transition-all placeholder:text-slate-300", rows="8", placeholder="Escribí la respuesta...") }}
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-4 px-6 border border-transparent text-sm font-black rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 shadow-lg shadow-indigo-200 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                    Enviar Respuesta
+                </button>
+            </form>
+            {% else %}
+            <div class="p-8 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h4 class="text-sm font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Postulación cerrada</h4>
+                <p class="text-xs font-bold text-slate-400/60 leading-relaxed">El canal de comunicación por correo para esta postulación ha sido cerrado.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

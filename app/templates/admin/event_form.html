@@ -1,0 +1,97 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-10 flex items-center gap-4">
+        <a href="{{ url_for('admin.events_list') }}" class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ title }}</h1>
+            <p class="text-slate-500 font-medium">Completa la información para el evento cultural.</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+        <form method="POST" class="space-y-8" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            {% if submission_id %}
+            <input type="hidden" name="submission_id" value="{{ submission_id }}">
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Título del Evento</label>
+                    {{ form.title(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="Ej: Festival de Jazz de Invierno") }}
+                    {% for error in form.title.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Localidad</label>
+                    {{ form.locality(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="Ej: Minas") }}
+                    {% for error in form.locality.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Dirección</label>
+                    {{ form.address(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="Ej: Plaza Libertad") }}
+                    {% for error in form.address.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Fecha del Evento</label>
+                    {{ form.event_date(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", type="date") }}
+                    {% for error in form.event_date.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Categoría</label>
+                    {{ form.category(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300", placeholder="Ej: Música / Teatro") }}
+                    {% for error in form.category.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Descripción</label>
+                    {{ form.description(class="bg-slate-50 border-0 text-slate-900 text-sm rounded-2xl focus:ring-2 focus:ring-blue-500 block w-full p-4 font-bold placeholder:text-slate-300 min-h-[150px]", placeholder="Describe los detalles del evento...") }}
+                    {% for error in form.description.errors %}<span class="text-rose-500 text-xs font-bold mt-1">{{ error }}</span>{% endfor %}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Imagen del Evento</label>
+                    <div class="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors">
+                        {{ form.image(class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-900 file:text-white hover:file:bg-blue-600 transition-all cursor-pointer") }}
+                        <p class="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Formatos permitidos: JPG, PNG, WEBP (Máx 2MB)</p>
+                        {% if submission_image_url and not event %}
+                        <p class="mt-2 text-xs text-emerald-700 font-semibold">Si no seleccionás una imagen nueva, se usará la imagen recibida en la postulación.</p>
+                        {% endif %}
+                        {% for error in form.image.errors %}<span class="text-rose-500 text-xs font-bold mt-1 block">{{ error }}</span>{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% if submission_image_url and not event %}
+            <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                <label class="block text-xs font-black uppercase tracking-widest text-emerald-700 mb-3">Imagen Recibida en la Postulación (Predeterminada)</label>
+                <img src="{{ submission_image_url }}" alt="Imagen de la postulación" class="h-48 rounded-2xl object-cover shadow-sm">
+            </div>
+            {% endif %}
+
+            {% if image_url %}
+            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Imagen Actual</label>
+                <img src="{{ image_url }}" alt="Vista previa" class="h-48 rounded-2xl object-cover shadow-sm">
+            </div>
+            {% endif %}
+
+            <div class="flex items-center gap-4 pt-6">
+                <button type="submit" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                    {{ 'Guardar Cambios' if event else 'Publicar Evento' }}
+                </button>
+                <a href="{{ url_for('admin.events_list') }}" class="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm hover:bg-slate-200 transition-all active:scale-95">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

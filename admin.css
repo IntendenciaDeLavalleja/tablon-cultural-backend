@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@source "./app/templates";
+
+body { font-family: system-ui, sans-serif; }

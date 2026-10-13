@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel - Tablón Cultural{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="px-3 py-3 lg:px-5 lg:pl-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center justify-start rtl:justify-end">
+                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-slate-500 rounded-lg sm:hidden hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200">
+                        <span class="sr-only">Abrir menú lateral</span>
+                        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path></svg>
+                    </button>
+                    <a href="{{ url_for('admin.dashboard') }}" class="flex ms-2 md:me-24">
+                        <span class="self-center text-xl font-bold sm:text-2xl whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Tablón Cultural</span>
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    {% if current_user.is_authenticated %}
+                    <div class="flex items-center ms-3 space-x-4">
+                        <div class="hidden sm:block text-right">
+                            <p class="text-xs font-medium text-slate-950 leading-none">{{ current_user.email }}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">
+                                {{ 'Super Admin' if current_user.is_superuser else 'Administrador' }}
+                            </p>
+                        </div>
+                        <form method="post" action="{{ url_for('admin.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-slate-900 rounded-full hover:bg-slate-800 transition-colors shadow-sm">
+                            Salir
+                        </button></form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    {% if current_user.is_authenticated %}
+    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-slate-200 sm:translate-x-0" aria-label="Sidebar">
+        <div class="h-full px-4 pb-4 overflow-y-auto bg-white">
+            <ul class="space-y-1.5 font-medium">
+                <li>
+                    <a href="{{ url_for('admin.dashboard') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'admin.dashboard' else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if request.endpoint == 'admin.dashboard' else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21"><path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/><path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.186.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/></svg>
+                        <span class="ms-3">Escritorio</span>
+                    </a>
+                </li>
+                {% set submissions_active = request.endpoint in ['admin.event_submissions_list', 'admin.event_submission_detail', 'admin.update_event_submission_status', 'admin.reply_event_submission'] %}
+                <li>
+                    <a href="{{ url_for('admin.event_submissions_list') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if submissions_active else '' }}">
+                        <svg class="flex-shrink-0 w-5 h-5 {{ 'text-blue-600' if submissions_active else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm4 3a1 1 0 100 2h8a1 1 0 100-2H6zm0 4a1 1 0 100 2h5a1 1 0 100-2H6z"/></svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Postulaciones</span>
+                    </a>
+                </li>
+                {% set events_active = request.endpoint in ['admin.events_list'] %}
+                <li>
+                    <a href="{{ url_for('admin.events_list') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if events_active else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if events_active else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v11a1 1 0 001.707.707L7 14.414l2.293 2.293A1 1 0 0010 17h7a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg>
+                        <span class="ms-3">Eventos</span>
+                    </a>
+                </li>
+                {% set messages_active = request.endpoint in ['admin.contact_messages', 'admin.contact_message_detail', 'admin.reply_contact_message'] %}
+                <li>
+                    <a href="{{ url_for('admin.contact_messages') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if messages_active else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if messages_active else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2H7l-4 3v-3H4a2 2 0 01-2-2V5z"/></svg>
+                        <span class="ms-3">Mensajes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.agenda') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'admin.agenda' else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if request.endpoint == 'admin.agenda' else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                        <span class="ms-3">Agenda Cultural</span>
+                    </a>
+                </li>
+                {% if current_user.is_superuser %}
+                <li>
+                    <a href="{{ url_for('admin.email_received') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'admin.email_received' else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if request.endpoint == 'admin.email_received' else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z"></path><path d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"></path></svg>
+                        <span class="ms-3">Recibidos Agenda</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.email_logs') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if (request.endpoint == 'admin.email_logs' or request.endpoint == 'admin.send_email') else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if (request.endpoint == 'admin.email_logs' or request.endpoint == 'admin.send_email') else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                        <span class="ms-3">Correos Enviados</span>
+                    </a>
+                </li>
+                <li><a class="flex p-3 text-slate-600" href="{{ url_for('admin.email_queue') }}">Notificaciones</a></li>
+                {% endif %}
+                {% if current_user.is_superuser %}
+                <li>
+                    <a href="{{ url_for('admin.view_logs') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'admin.view_logs' else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if request.endpoint == 'admin.view_logs' else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                        <span class="ms-3">Logs de Sistema</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </aside>
+    {% endif %}
+
+    <div class="{% if current_user.is_authenticated %}sm:ml-64{% endif %} min-h-screen">
+        <div class="px-6 py-8 mt-14 max-w-7xl mx-auto">
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div id="alert-{{ loop.index }}" class="flex items-center p-4 mb-6 rounded-2xl shadow-sm {% if category == 'success' %}text-emerald-800 bg-emerald-50 border border-emerald-100{% elif category == 'error' %}text-rose-800 bg-rose-50 border border-rose-100{% else %}text-indigo-800 bg-indigo-50 border border-indigo-100{% endif %}" role="alert">
+                            <span class="text-sm font-semibold">{{ message }}</span>
+                            <button type="button" class="ms-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex items-center justify-center h-8 w-8 transition-colors {% if category == 'success' %}bg-emerald-50 text-emerald-500 hover:bg-emerald-100{% elif category == 'error' %}bg-rose-50 text-rose-500 hover:bg-rose-100{% else %}bg-indigo-50 text-indigo-500 hover:bg-indigo-100{% endif %}" data-dismiss-target="#alert-{{ loop.index }}" aria-label="Close">
+                                <span class="sr-only">Cerrar</span>
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+                          </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
+</body>
+</html>
