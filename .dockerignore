@@ -4,9 +4,6 @@
 !wsgi.py
 !requirements.txt
 !entrypoint.sh
-!admin.css
-!package.json
-!package-lock.json
 !Dockerfile
 **/__pycache__
 **/*.pyc

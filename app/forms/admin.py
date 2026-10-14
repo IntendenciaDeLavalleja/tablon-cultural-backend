@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import SelectField, TextAreaField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired, Length, Email, ValidationError
 from app.models.enums import SubmissionStatus
 from app.schemas.event import LOCALITY_CHOICES
-from app.utils.validators import validate_upload_file, FileValidationError
+from app.utils.validators import validate_upload_file, validate_webp_upload, FileValidationError
 from app.utils.dates import local_today
 
 class UpdateSubmissionStatusForm(FlaskForm):
@@ -43,6 +43,21 @@ class CulturalEventForm(CleanForm):
     def validate_event_date(self, field):
         if field.data and field.data < local_today():
             raise ValidationError('La fecha no puede ser anterior a hoy.')
+
+class HeroImageForm(CleanForm):
+    image = FileField('Imagen de portada (WEBP)', validators=[
+        FileRequired(message="Seleccioná una imagen WEBP"),
+        FileAllowed(['webp'], message="Solo se permiten imágenes WEBP")
+    ])
+    alt_text = StringField('Texto alternativo', validators=[Length(max=200, message="Máximo 200 caracteres")])
+    submit = SubmitField('Subir portada')
+
+    def validate_image(self, field):
+        if field.data:
+            try:
+                validate_webp_upload(field.data)
+            except FileValidationError as exc:
+                raise ValidationError(str(exc)) from exc
 
 class ContactForm(CleanForm):
     def validate_name(self, field):

@@ -79,6 +79,15 @@ class MinioService:
         """
         return self._upload_file(file, "events")
 
+    def upload_hero_image(self, file: FileStorage) -> dict:
+        """
+        Sube una portada WEBP para el carrusel del encabezado.
+        Genera un object_key bajo 'hero/'.
+        """
+        from app.utils.validators import validate_webp_upload
+        validate_webp_upload(file)
+        return self._upload_file(file, "hero")
+
     def _upload_file(self, file: FileStorage, object_prefix: str) -> dict:
         """
         Método interno de subida.

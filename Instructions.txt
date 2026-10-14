@@ -1,0 +1,21 @@
+Para activar el entorno virtual (desde la carpeta backend):
+    > venv\Scripts\Activate.ps1
+
+Para instalar dependencias:
+    > python -m pip install -r requirements.txt
+
+Para ejecutar migraciones:
+    > python -m flask db upgrade -d migrations
+
+Para poblar datos base:
+    > python -m flask seed-data
+
+Para crear un admin:
+    > python -m flask create-admin nombre-de-admin mail-de-admin contraseña-de-admin true/false-super-admin
+
+Para iniciar el almacenamiento local de imágenes (requiere Docker Desktop y MINIO_ACCESS_KEY/MINIO_SECRET_KEY en .env):
+    > docker compose -f compose.local-storage.yaml up -d
+    > python -m flask init-bucket
+
+Para iniciar la app:
+    > python wsgi.py

@@ -3,3 +3,4 @@ from flask import Blueprint
 admin_bp = Blueprint('admin', __name__)
 
 from . import tablon_routes
+from . import hero_routes

@@ -1,0 +1,100 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-10">
+    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Portada del Carrusel</h1>
+    <p class="text-slate-500 font-medium">Imágenes WEBP que rotan de fondo en el encabezado del sitio, en el orden indicado.</p>
+</div>
+
+<div class="mb-10 bg-white border border-slate-100 rounded-3xl shadow-sm p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Agregar imagen</h2>
+    <form method="POST" action="{{ url_for('admin.upload_hero_image') }}" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+        {{ form.hidden_tag() }}
+        <div>
+            <label for="{{ form.image.id }}" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">{{ form.image.label.text }}</label>
+            {{ form.image(accept='image/webp', class='block w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-blue-50 file:text-blue-700 file:font-bold hover:file:bg-blue-100') }}
+        </div>
+        <div>
+            <label for="{{ form.alt_text.id }}" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">{{ form.alt_text.label.text }}</label>
+            {{ form.alt_text(maxlength=200, placeholder='Descripción breve para lectores de pantalla', class='block w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:ring-blue-500') }}
+        </div>
+        <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-md shadow-blue-200 active:scale-95">
+            Subir portada
+        </button>
+    </form>
+    <p class="mt-3 text-xs text-slate-400">Solo WEBP, hasta 2MB. Recomendado: horizontal, al menos 1920×1080 px.</p>
+</div>
+
+<div class="overflow-hidden bg-white border border-slate-100 rounded-3xl shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-500">
+            <thead class="text-xs text-slate-400 uppercase bg-slate-50/50 border-b border-slate-100">
+                <tr>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Orden</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Vista previa</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider">Texto alternativo</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider text-center">Estado</th>
+                    <th scope="col" class="px-6 py-5 font-bold tracking-wider text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for image in images %}
+                <tr class="hover:bg-slate-50/80 transition-colors duration-150">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-slate-900 w-6 text-center">{{ loop.index }}</span>
+                            <form method="POST" action="{{ url_for('admin.move_hero_image', id=image.id, direction='up') }}">
+                                {{ form.csrf_token }}
+                                <button type="submit" aria-label="Subir en el orden" title="Subir" {{ 'disabled' if loop.first }} class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.move_hero_image', id=image.id, direction='down') }}">
+                                {{ form.csrf_token }}
+                                <button type="submit" aria-label="Bajar en el orden" title="Bajar" {{ 'disabled' if loop.last }} class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <img src="{{ url_for('public.event_image', object_key=image.object_key) }}" alt="{{ image.alt_text }}" loading="lazy" class="h-16 w-28 object-cover rounded-xl border border-slate-100 bg-slate-100">
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="font-semibold text-slate-900">{{ image.alt_text }}</p>
+                        <p class="text-xs text-slate-400">{{ image.file_name }}</p>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if image.is_active %}
+                        <span class="bg-emerald-50 text-emerald-700 inline-block text-[10px] font-black uppercase tracking-normal px-4 py-2.5 rounded-full border border-current opacity-90 whitespace-nowrap">Activa</span>
+                        {% else %}
+                        <span class="bg-slate-100 text-slate-400 inline-block text-[10px] font-black uppercase tracking-normal px-4 py-2.5 rounded-full border border-current opacity-90 whitespace-nowrap">Oculta</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <form method="POST" action="{{ url_for('admin.toggle_hero_image', id=image.id) }}" class="inline">
+                                {{ form.csrf_token }}
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all duration-200">
+                                    {{ 'Ocultar' if image.is_active else 'Mostrar' }}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.delete_hero_image', id=image.id) }}" class="inline" onsubmit="return confirm('¿Quitar esta portada del carrusel y borrar el archivo?')">
+                                {{ form.csrf_token }}
+                                <button type="submit" class="px-4 py-2 text-rose-700 text-xs font-bold">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="px-6 py-20 text-center">
+                        <p class="text-slate-400 font-bold">No hay portadas cargadas. El sitio mostrará las imágenes de respaldo.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

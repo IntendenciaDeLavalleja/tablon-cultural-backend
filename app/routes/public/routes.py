@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import date, timedelta
-from flask import request, jsonify, abort, send_file
+from flask import request, jsonify, abort, send_file, url_for
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from app.utils.dates import local_today
@@ -14,6 +14,7 @@ from marshmallow import ValidationError
 
 from app.extensions import db, limiter, csrf
 from app.models.event import CulturalEvent, EventSubmission
+from app.models.hero import HeroImage
 from app.models.enums import EventStatus, SubmissionStatus
 from app.schemas.event import EventSubmissionCreateSchema, ContactMessageCreateSchema
 from app.models.contact import ContactMessage
@@ -214,10 +215,28 @@ def submission_response(submission):
                    created_at=submission.created_at.isoformat()), 201
 
 
+@public_bp.route('/api/hero-images', methods=['GET'])
+@limiter.limit("60 per minute")
+def list_hero_images():
+    images = (HeroImage.query
+              .filter_by(is_active=True)
+              .order_by(HeroImage.sort_order.asc(), HeroImage.id.asc())
+              .all())
+    payload = [{
+        "id": str(image.id),
+        "url": url_for('public.event_image', object_key=image.object_key),
+        "alt": image.alt_text,
+    } for image in images]
+    response = jsonify(payload)
+    response.headers['Cache-Control'] = 'no-store'
+    return response, 200
+
+
 @public_bp.get('/media/<path:object_key>')
 def event_image(object_key):
     published = CulturalEvent.query.filter_by(image_object_key=object_key, status=EventStatus.PUBLISHED).first()
-    if not published and not (current_user.is_authenticated and current_user.is_active):
+    hero = HeroImage.query.filter_by(object_key=object_key, is_active=True).first()
+    if not published and not hero and not (current_user.is_authenticated and current_user.is_active):
         abort(404)
     data = minio_service.get_file_content(object_key)
     if data is None:

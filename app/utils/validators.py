@@ -77,3 +77,10 @@ def validate_upload_file(file: FileStorage) -> None:
         raise FileValidationError("Archivo de imagen corrupto o inválido.")
     finally:
         file.seek(0) # Siempre resetear puntero para el siguiente consumidor
+
+def validate_webp_upload(file: FileStorage) -> None:
+    """Igual que validate_upload_file, pero exige formato WEBP (portadas del carrusel)."""
+    validate_upload_file(file)
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext != 'webp':
+        raise FileValidationError("La portada debe ser una imagen WEBP.")

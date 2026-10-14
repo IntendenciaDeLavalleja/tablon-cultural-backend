@@ -19,7 +19,7 @@ def test_fresh_migrations_and_model_schema_match(tmp_path):
         for table in db.metadata.sorted_tables:
             assert table.name in inspector.get_table_names()
             assert {c.name for c in table.columns} == {c['name'] for c in inspector.get_columns(table.name)}
-        assert db.session.execute(text('SELECT version_num FROM alembic_version')).scalar() == 'a83bd5e91200'
+        assert db.session.execute(text('SELECT version_num FROM alembic_version')).scalar() == 'c4f1a9d2e7b3'
 
 
 @pytest.mark.parametrize('legacy_date,valid', [('2026-09-23',True), ('Viernes de noche',False)])

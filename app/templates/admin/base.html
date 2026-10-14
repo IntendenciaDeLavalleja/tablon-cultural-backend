@@ -65,6 +65,13 @@
                         <span class="ms-3">Eventos</span>
                     </a>
                 </li>
+                {% set hero_active = request.endpoint in ['admin.hero_images'] %}
+                <li>
+                    <a href="{{ url_for('admin.hero_images') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if hero_active else '' }}">
+                        <svg class="w-5 h-5 {{ 'text-blue-600' if hero_active else 'text-slate-500 group-hover:text-slate-900' }} transition duration-75" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                        <span class="ms-3">Portada</span>
+                    </a>
+                </li>
                 {% set messages_active = request.endpoint in ['admin.contact_messages', 'admin.contact_message_detail', 'admin.reply_contact_message'] %}
                 <li>
                     <a href="{{ url_for('admin.contact_messages') }}" class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-slate-100 group transition-all duration-200 {{ 'bg-blue-50 text-blue-700' if messages_active else '' }}">
