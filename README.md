@@ -2,6 +2,8 @@
 
 Flask con MariaDB/PyMySQL, SQLAlchemy, Marshmallow, WTForms y MinIO. Rutas activas: `app/routes/public/routes.py` y `app/routes/admin/tablon_routes.py`.
 
+La imagen Docker incluye un `HEALTHCHECK` que consulta `/healthz` y comprueba la conexión a la base de datos.
+
 ## Desarrollo local
 
 ```sh

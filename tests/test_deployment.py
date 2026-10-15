@@ -93,3 +93,10 @@ def test_audit_log_values_are_not_javascript(client):
     assert response.status_code == 200
     assert "onclick='alert(`" not in response.text
     assert '<script>alert(2)</script>' not in response.text
+
+
+def test_backend_dockerfile_declares_healthcheck():
+    dockerfile = Path(__file__).resolve().parents[1] / 'Dockerfile'
+    contents = dockerfile.read_text()
+    assert 'HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3' in contents
+    assert "http://127.0.0.1:8000/healthz" in contents
