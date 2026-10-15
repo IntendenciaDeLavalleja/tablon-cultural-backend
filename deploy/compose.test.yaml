@@ -1,7 +1,7 @@
 # Isolated local integration environment. Never use this override in production.
 services:
   backend:
-    ports: ["127.0.0.1:5000:8000"]
+    ports: ["127.0.0.1:5000:5000"]
     environment:
       FORCE_HTTPS: "false"
       TRUSTED_PROXY_COUNT: "1"

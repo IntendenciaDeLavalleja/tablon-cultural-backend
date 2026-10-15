@@ -99,4 +99,4 @@ def test_backend_dockerfile_declares_healthcheck():
     dockerfile = Path(__file__).resolve().parents[1] / 'Dockerfile'
     contents = dockerfile.read_text()
     assert 'HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3' in contents
-    assert "http://127.0.0.1:8000/healthz" in contents
+    assert "http://127.0.0.1:5000/healthz" in contents
